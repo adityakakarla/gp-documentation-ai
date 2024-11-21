@@ -1,35 +1,71 @@
-# Bioinformatics Pipeline README
-## Summary
-This pipeline is designed to perform spatial enrichment analysis on normalized transcriptomics data using the STenrich algorithm. It provides parameters for controlling various aspects of the analysis, including input file type, gene set database, and parameters for estimating null distributions.
+# Spatial Data Preprocessing Module
 
-## Use Cases
-The following use cases demonstrate the application of this pipeline:
+## Description
 
-* Performing spatial enrichment analysis on a sample of 1000 high expression ROIs/spots/cells across multiple conditions.
-* Testing a gene set in different samples with varying minimum spot/ROI/cell numbers to ensure robustness.
-* Calculating standard deviations to define the high-expression threshold for a specific gene set.
+This module provides a comprehensive overview of the spatial data preprocessing workflow, including command line options, script flow, and data structures used in the process.
 
-## Implementation
-This pipeline consists of the following modules:
+## Module Details
 
-* **Input Preprocessing**: normalizes spatial transcriptomics data coming from the `spatialGE.Preprocessing` module.
-* **Gene Set Database Selection**: selects a gene set database to test for spatial enrichment (upload if not listed in MSigDB).
-* **Permutation Estimation**: estimates null distributions using different permutations of the STenrich algorithm.
-* **Random Seed Replication**: replicates results with varying random seed values to check for consistency.
+### Authors
 
-## Parameters
-The following parameters control various aspects of the analysis:
+* Edwin
 
-| Parameter | Description | Default Value | Required |
+### Categories
+
+* spatial transcriptomics
+* Link: https://github.com/genepattern/spatialGE.Preprocessing
+
+### Source Repo
+
+* Link: https://github.com/genepattern/spatialGE.Preprocessing
+
+### Contact
+
+* Link: https://groups.google.com/g/genepattern-help
+
+## Input Files (info + type)
+
+| Info | Type |
+| --- | --- |
+| Expression Matrix File Paths | `exprmats` |
+| Metadata File Paths | `metas` |
+| Sample Names | `samples` |
+| Image File Path | `image_file` |
+
+## Output Files (info + type)
+
+| Info | Type |
+| --- | --- |
+| STlist Object | `output.RData` |
+
+## Parameters (formatted as a Markdown table with name, description, default value, and type)
+
+| Name | Description | Default Value | Type |
 | --- | --- | --- | --- |
-| `input_file` | Normalized spatial transcriptomics data | * | Yes |
-| `gene_sets_database` | Select a gene set database to test for spatial enrichment | Upload if not listed as a choice from MSigDB | Yes |
-| `permutations` | The number of permutations to estimate null distribution (no-spatial pattern) | 100 | Yes |
-| `random_seed` | A seed number to replicate results | 12345 | No |
-| `minimum_spots` | The minimum number of high expression ROIs/spots/cells required for a gene set to be tested | 5 | Yes |
-| `minimum_genes` | The minimum number of genes of a set required to be present in a sample, for that gene set to be tested in that sample | 5 | Yes |
-| `standard_deviations` | The number of standard deviations to define the high-expression threshold | 1.0 | No |
-| `filter_p_values` | Plot only gene sets whose multiple test adjusted p-value is less than this threshold | 0.05 | No |
-| `filter_gene_proportion` | Plot only gene sets where the proportional number genes in the set present in the field of view equals or exceeds this threshold | 0.3 | No |
+| `-e`, `--exprmats` | Comma-separated list of expression matrix file paths | NULL | `list` |
+| `-m`, `--metas` | Comma-separated list of metadata file paths | NULL | `list` |
+| `-a`, `--samples` | Comma-separated list of sample names | NULL | `list` |
+| `-w`, `--ws` | Weight to be applied to spatial distances (0-1) with a default value of 0.025 | 0.025 | `numeric` |
+| `-d`, `--dist_metric` | Distance metric to be used with a default value of 'euclidean' | 'euclidean' | `string` |
+| `-l`, `--linkage` | Linkage method applied to hierarchical clustering with a default value of 'ward.D2' | 'ward.D2' | `string` |
+| `-k`, `--ks` | Range of k values to assess with a default value of 'dtc' | 'dtc' | `numeric` |
+| `-t`, `--topgenes` | Number of genes with highest spot-to-spot expression variation with a default value of 2000 | 2000 | `integer` |
+| `-s`, `--deepSplit` | Logical or integer (1-4) to control cluster resolution with a default value of FALSE | FALSE | `boolean` |
+| `-p`, `--plot` | Option to plot intermediate results with a default value of FALSE | FALSE | `boolean` |
+| `-o`, `--output` | Path to save the output STlist object with a default value of 'output.RData' | NULL | `string` |
+| `-f`, `--image_zip` | Path to the zip file containing images with a default value of NULL | NULL | `string` |
+| `-d`, `--temp_dir` | Temporary directory for extraction with a default value of 'image_extract_' | 'image_extract_' | `string` |
 
-Note: This README provides a general overview of the pipeline, and additional sections can be added as needed to provide further details on specific aspects of the implementation.
+## Script Flow
+
+1. Extract images from the zip file and load them into the `lung_subset` object.
+2. Perform clustering using Spatial Clustering of Integers (SCIT) on the `lung_subset` object, applying the specified parameters.
+3. If intermediate results are required, plot the cluster distribution with a specified color palette.
+4. Finally, save the output STlist object to the specified file.
+
+## Data Structures
+
+* `expression_matrix`: A matrix of expression values
+* `metadata`: A dictionary of metadata for each sample
+* `sample_name`: The name of each sample
+* `image_file`: The path to an image file in the 'CellComposite' folder
